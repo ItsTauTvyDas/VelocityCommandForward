@@ -70,11 +70,11 @@ custom-command: proxyexec
 filtered-commands:
   - example_command
 
-# {command} = The command sent by the sender
+# {command} = The command that was sent by the sender
 # {sender} = The player who sent the command
 # If set to '', no message will be sent.
 messages:
-  reload: '&aPlugin messages have been reloaded!'
+  reload: '&aPlugin messages and filters have been reloaded!'
   command-sent-as-player: '&2Command sent to proxy &7=> &a/{command}'
   command-sent-as-console: '&2Command sent as console to proxy &7=> &a/{command}'
   no-online-player: '&cThere must be at least 1 online player to be able to execute proxy console commands!'
