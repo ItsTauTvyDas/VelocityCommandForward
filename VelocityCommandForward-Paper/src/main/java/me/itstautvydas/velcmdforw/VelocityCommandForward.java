@@ -15,8 +15,8 @@ import java.util.List;
 import java.util.Map;
 
 public final class VelocityCommandForward extends JavaPlugin {
-
-    public static final String CHANNEL = "velocity_command_forward:main";
+    
+    public static final String CHANNEL = "velcmdforw:main";
 
     public String customCommandName;
     public List<String> filteredCommands;
