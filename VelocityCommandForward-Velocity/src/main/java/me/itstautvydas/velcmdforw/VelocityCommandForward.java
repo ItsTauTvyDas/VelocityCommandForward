@@ -8,6 +8,7 @@ import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.ServerConnection;
+import com.velocitypowered.api.proxy.messages.LegacyChannelIdentifier;
 import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 import org.slf4j.Logger;
 
@@ -26,7 +27,9 @@ public class VelocityCommandForward {
     private final Logger logger;
     private final ProxyServer proxy;
 
-    private static final MinecraftChannelIdentifier CHANNEL = MinecraftChannelIdentifier.from("velocity_command_forward:main");
+    private static final String CHANNEL_ID = "velcmdforw:main";
+    private static final MinecraftChannelIdentifier CHANNEL = MinecraftChannelIdentifier.from(CHANNEL_ID);
+    private static final LegacyChannelIdentifier LEGACY_CHANNEL = new LegacyChannelIdentifier(CHANNEL_ID);
 
     @Inject
     public VelocityCommandForward(ProxyServer proxy, Logger logger) {
@@ -36,12 +39,12 @@ public class VelocityCommandForward {
 
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
-        proxy.getChannelRegistrar().register(CHANNEL);
+        proxy.getChannelRegistrar().register(CHANNEL, LEGACY_CHANNEL);
     }
 
     @Subscribe
     public void onPluginMessage(PluginMessageEvent event) {
-        if (!CHANNEL.equals(event.getIdentifier())) return;
+        if (!CHANNEL_ID.equals(event.getIdentifier().getId())) return;
 
         event.setResult(PluginMessageEvent.ForwardResult.handled());
 
