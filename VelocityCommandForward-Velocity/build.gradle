@@ -2,11 +2,11 @@ plugins {
     id 'java'
     id 'eclipse'
     id 'org.jetbrains.gradle.plugin.idea-ext' version '1.1.8'
-    id("xyz.jpenilla.run-velocity") version "2.3.1"
+    id("xyz.jpenilla.run-velocity") version "3.0.2"
 }
 
 group = 'me.itstautvydas'
-version = '1.1.0'
+version = '1.2.0'
 
 repositories {
     mavenCentral()
@@ -26,12 +26,12 @@ dependencies {
 }
 
 tasks {
-  runVelocity {
-    // Configure the Velocity version for our task.
-    // This is the only required configuration besides applying the plugin.
-    // Your plugin's jar (or shadowJar if present) will be used automatically.
-    velocityVersion("3.4.0-SNAPSHOT")
-  }
+    runVelocity {
+        // Configure the Velocity version for our task.
+        // This is the only required configuration besides applying the plugin.
+        // Your plugin's jar (or shadowJar if present) will be used automatically.
+        velocityVersion("3.4.0")
+    }
 }
 
 def targetJavaVersion = 17
