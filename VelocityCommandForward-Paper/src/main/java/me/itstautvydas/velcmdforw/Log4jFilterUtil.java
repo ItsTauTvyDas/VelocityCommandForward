@@ -25,9 +25,11 @@ public class Log4jFilterUtil extends AbstractFilter {
     @Override
     public Filter.Result filter(LogEvent event) {
         String message = event.getMessage().getFormattedMessage();
-        return this.filteredCommands.stream()
-                .anyMatch(command -> message.contains(" issued server command: /" + customCommandName + " " + command))
-                ? Result.DENY
-                : Result.NEUTRAL;
+        if (this.filteredCommands
+                .stream()
+                .anyMatch(command -> message.contains(" issued server command: /" + customCommandName + " " + command))) {
+            return Result.DENY;
+        }
+        return Result.NEUTRAL;
     }
 }
