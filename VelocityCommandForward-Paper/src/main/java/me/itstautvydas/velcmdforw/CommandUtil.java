@@ -12,6 +12,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
+import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,10 +33,9 @@ public class CommandUtil {
                         .requires(sender -> sender.getSender().hasPermission("velocitycommandforward.admin"))
                         .executes(ctx -> {
                             plugin.saveDefaultConfig();
-
                             plugin.reloadConfig();
                             plugin.reloadFilter();
-
+                            plugin.loadSecret();
                             CommandSender sender = ctx.getSource().getSender();
                             messageUtil.sendMessage(sender, "messages.reload");
                             return Command.SINGLE_SUCCESS;
@@ -53,8 +53,12 @@ public class CommandUtil {
     private void handleCommand(CommandSourceStack source, String[] args) {
         CommandSender sender = source.getSender();
         String command = String.join(" ", args);
+        if (plugin.isProtectionEnabled() && plugin.getProtection() == null) {
+            messageUtil.sendMessage(sender, "messages.secret-missing");
+            return;
+        }
         ByteArrayDataOutput out = ByteStreams.newDataOutput();
-
+        out.writeLong(System.currentTimeMillis());
         if (sender instanceof Player player) {
             handlePlayerCommand(player, command, out);
         } else if (sender instanceof ConsoleCommandSender) {
@@ -64,43 +68,55 @@ public class CommandUtil {
 
     private void handlePlayerCommand(Player player, String command, ByteArrayDataOutput out) {
         Map<String, String> placeholders = setPlaceholders(player.getName(), command);
-
         byte filter = 0;
         if (messageUtil.shouldFilterCommand(command)) filter |= 0x01;
-
         out.writeUTF(player.getUniqueId().toString());
         out.writeUTF(command);
         out.writeByte(filter);
         out.writeUTF(messageUtil.velocityLog("messages.velocity-log", placeholders));
-        player.sendPluginMessage(plugin, VelocityCommandForward.CHANNEL, out.toByteArray());
-
+        if (!send(player, player, out)) return;
         if (filter == 0x01) return;
-
         plugin.log(player.getName(), command);
         messageUtil.sendMessage(player, "messages.command-sent-as-player", placeholders);
     }
 
     private void handleConsoleCommand(CommandSender sender, String command, ByteArrayDataOutput out) {
         Map<String, String> placeholders = setPlaceholders(sender.getName(), command);
-
         byte filter = 0;
         if (messageUtil.shouldFilterCommand(command)) filter |= 0x01;
-
         out.writeUTF(""); // Console
         out.writeUTF(command);
         out.writeByte(filter);
         out.writeUTF(messageUtil.velocityLog("messages.velocity-log", placeholders));
         Player onlinePlayer = Bukkit.getOnlinePlayers().stream().findFirst().orElse(null);
         if (onlinePlayer == null) {
-            messageUtil.sendMessage(sender, plugin.getConfig().getString("messages.no-online-player"));
+            messageUtil.sendMessage(sender, "messages.no-online-player");
             return;
         }
-        onlinePlayer.sendPluginMessage(plugin, VelocityCommandForward.CHANNEL, out.toByteArray());
-
+        if (!send(sender, onlinePlayer, out)) return;
         if (filter == 0x01) return;
-
         plugin.log("CONSOLE", command);
         messageUtil.sendMessage(sender, "messages.command-sent-as-console", placeholders);
+    }
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    private boolean send(CommandSender sender, Player carrier, ByteArrayDataOutput out) {
+        byte[] data = out.toByteArray();
+        if (plugin.isProtectionEnabled()) {
+            MessageCrypto protection = plugin.getProtection();
+            if (protection == null) {
+                messageUtil.sendMessage(sender, "messages.secret-missing");
+                return false;
+            }
+            try {
+                data = protection.encrypt(data);
+            } catch (GeneralSecurityException e) {
+                plugin.getLogger().severe("Could not encrypt command: " + e);
+                return false;
+            }
+        }
+        carrier.sendPluginMessage(plugin, VelocityCommandForward.CHANNEL, data);
+        return true;
     }
 
     private Map<String, String> setPlaceholders(String sender, String command) {

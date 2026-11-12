@@ -1,0 +1,3 @@
+# Encrypt forwarded commands using secret.key (created on first start).
+# Copy secret.key to plugins/VelocityCommandForward/ on every backend server.
+use-crypto-protection: false

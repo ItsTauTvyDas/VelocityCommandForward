@@ -18,3 +18,4 @@ messages:
   no-online-player: '&cThere must be at least 1 online player to be able to execute proxy console commands!'
   console-log: '[{sender}] Sending command packet to proxy => /{command}'
   velocity-log: '[{sender}] Received proxy command packet => /{command}'
+  secret-missing: '&cCannot forward commands, proxy requires encryption. Please check the server console!'
