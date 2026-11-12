@@ -2,7 +2,9 @@
 /VelocityCommandForward-Paper/.gradle/
 /VelocityCommandForward-Paper/build/
 /VelocityCommandForward-Paper/build/classes/java/main/
+/VelocityCommandForward-Paper/run
 /VelocityCommandForward-Velocity/.gradle/
 /VelocityCommandForward-Velocity/build/
 /VelocityCommandForward-Velocity/build/classes/java/main/
+/VelocityCommandForward-Velocity/run
 /.idea
