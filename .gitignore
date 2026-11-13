@@ -8,3 +8,4 @@
 /VelocityCommandForward-Velocity/build/classes/java/main/
 /VelocityCommandForward-Velocity/run
 /.idea
+*.iml
