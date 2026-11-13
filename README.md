@@ -11,6 +11,7 @@
 * Custom message.
 * Customize commands to be sent silently (without sending messages or console logs).
 * Players and console can execute proxy commands (sends a packet to the proxy to execute either as player or console).
+* Optional encryption. Commands are encrypted and verified with a shared `secret.key`, so they can't be forged or replayed.
 
 ## 📥 How to install? / Installation / Setup
 Very simple, download both Velocity and Paper plugin and upload to their designed servers (proxy/backend).
@@ -19,12 +20,17 @@ Very simple, download both Velocity and Paper plugin and upload to their designe
 2. Download Velocity and Paper version plugin.
 3. Drop both plugin files (for your server version) into the `plugins` folder.
 4. Start your server.
+5. If using encryption, do these steps.
+   1. Copy `plugins/velocity-command-forward/secret.key` from the proxy into `plugins/VelocityCommandForward/` on every backend.
+   2. Run `/proxyexec reload` on each backend (or restart).
 
 ## 💡 Notes
-* Configuration only generates for backend server!
+* Encryption is controlled by the proxy only, backend servers follow it automatically.
+* To disable encryption, set `use-crypto-protection: false` in the proxy config or leave `secret.key` empty.
+* Server clocks must be within 30 seconds of each other, or encrypted commands are rejected.
 
 ## ❓ Use case for this?
-* My use case was very niche, I have a discord command that can run minecraft commands (if player is online) and
+* My use case was very niche, I have a discord command that can run Minecraft commands (if player is online) and
 the issue was that the discord bot was running on backend server, and so I decided to make a plugin to run proxy
 commands, such as `/skin`.
 * Another common use case is when you install the TAB plugin on Velocity and need to send commands from the backend server to the proxy server, such as `/btab scoreboard` to toggle TAB's scoreboard. While executing it manually works fine, if you use custom items from other plugins that are bound to this command, the command may fail to execute. In such cases, simply relying on this plugin's commands can resolve the issue of TAB commands not working.
@@ -57,7 +63,8 @@ Proxy server.
 
 <img width="1300" height="75" alt="PixPin_2025-08-11_01-44-22" src="https://github.com/user-attachments/assets/6e407eaa-9c59-4389-a03f-21472732198b" />
 
-## 📄 Default configuration
+## 📄 Default configurations
+### Backend (Paper)
 Changing `custom-command` requires a server restart.
 ```yaml
 # VelocityCommandForward
@@ -80,6 +87,14 @@ messages:
   no-online-player: '&cThere must be at least 1 online player to be able to execute proxy console commands!'
   console-log: '[{sender}] Sending command packet to proxy => /{command}'
   velocity-log: '[{sender}] Received proxy command packet => /{command}'
+  secret-missing: '&cCannot forward commands, the proxy requires encryption. Please check the server console!'
+```
+
+### Proxy (Velocity)
+```yaml
+# Encrypt forwarded commands using secret.key (created on first start).
+# Copy secret.key to plugins/VelocityCommandForward/ on every backend.
+use-crypto-protection: false
 ```
 
 ## ✅ Requirements
